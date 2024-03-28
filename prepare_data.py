@@ -1,3 +1,6 @@
+#pip install opencv-python
+#
+
 import os
 
 import cv2
