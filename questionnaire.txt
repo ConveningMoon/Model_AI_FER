@@ -1,0 +1,16 @@
+MATERIAL:
+
+1.- Did you feel interested in the material studied?
+2.- Have you understood the material studied?
+3.- Have you found all the necessary information in the material?
+
+TEACHER:
+
+1.- Was there good and easy communication with the teacher?
+2.- Did you manage to understand the teacher's explanations?
+3.- Was the teacher able to answer your questions?
+
+SPACE:
+
+1.- Do you consider that the environment you are in supports your concentration?
+2.- Did you feel completely focused during class time?
