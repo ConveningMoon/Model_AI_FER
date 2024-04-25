@@ -54,7 +54,7 @@ class QuestionnaireWindow(ctk.CTk):
     def create_questionnaire(self):
         row = 1
         # Header for ratings
-        ratings = ["1 - Completely agree", "2", "3", "4", "5", "6", "7 - Completely disagree"]
+        ratings = ["1 - Completely agree", "2 - ", "3", "4", "5", "6", "7 - Completely disagree"]
         for i, rating in enumerate(ratings, start=1):
             label = ctk.CTkLabel(self, text=rating, text_color="#FFFFFF")
             label.grid(row=0, column=i, padx=5, pady=5)
