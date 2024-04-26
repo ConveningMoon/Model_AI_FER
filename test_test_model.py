@@ -10,12 +10,15 @@ from utils import get_face_landmarks
 import pickle
 from collections import Counter
 from threading import Thread
+from firebase_admin import db
 
 running = False
+emotion_data = []
+subject = ""
 
 
 def camera_loop():
-    global running
+    global running, emotion_data
     # Load the emotion recognition model
     with open('./model', 'rb') as f:
         model = pickle.load(f)
@@ -25,7 +28,6 @@ def camera_loop():
     cap = cv2.VideoCapture(0)
 
     emotion_data = []
-    start_time = time.time()
 
     running = True
     while running:
@@ -49,25 +51,6 @@ def camera_loop():
 
         cv2.imshow('frame', frame)
 
-        # Store emotion data in a JSON file every 5 seconds
-        # if time.time() - start_time >= 5:
-        #     most_common_emotions = Counter(emotion_data).most_common(3)
-        #     emotion_summary = [{"emotion": e[0], "percentage": e[1] / len(emotion_data) * 100} for e in
-        #                        most_common_emotions]
-        #
-        #     json_data = {
-        #         "datetime": datetime.datetime.now().isoformat(),
-        #         "emotions": emotion_summary
-        #     }
-        #
-        #     with open('emotion_data.json', 'a') as file:
-        #         json.dump(json_data, file, indent=4)
-        #         file.write(",\n")  # Separate entries by a comma and new line for readability
-        #
-        #     # Reset for the next interval
-        #     emotion_data = []
-        #     start_time = time.time()
-
         if cv2.waitKey(1) & 0xFF == ord('q'):
             print("trigger break")
             break
@@ -76,7 +59,9 @@ def camera_loop():
     cv2.destroyAllWindows()
 
 
-def open_camera():
+def open_camera(subject_name):
+    global subject
+    subject = subject_name
     # Start camera in a separate thread
     Thread(target=camera_loop).start()
 
@@ -84,4 +69,25 @@ def open_camera():
 def close_camera():
     global running
     running = False
+
     time.sleep(1)  # Give a moment for the camera loop to notice the flag
+
+
+def send_info(localId, refReport, averageInfo):
+    global emotion_data, subject
+
+    most_common_emotions = list(Counter(emotion_data).items())
+    emotion_summary = [{"emotion": e[0], "percentage": e[1] / len(emotion_data) * 100} for e in
+                       most_common_emotions]
+
+    json_report = {
+        "studentId": localId,
+        "datetime": datetime.datetime.now().isoformat(),
+        "emotions": emotion_summary,
+        "subject": subject,
+        "average": averageInfo
+    }
+    refReport.push(json_report)
+
+    # Reset for the next interval
+    emotion_data = []
