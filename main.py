@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+from tkinter.messagebox import showwarning
 import customtkinter as ctk
 from datetime import datetime
 from firebase_admin import credentials, initialize_app, db
@@ -17,7 +18,7 @@ ctk.set_appearance_mode("dark")  # Options: "System" (default), "light", "dark"
 
 def get_credential_path():
     base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
-    return os.path.join(base_path, 'account_lupa_sdk.json')
+    return os.path.join(base_path, 'account_key.json')
 
 
 # Firebase initialization
@@ -39,11 +40,11 @@ def sign_in_with_email_and_password(email, password):
     return r.json()
 
 
-class QuestionnaireWindow(ctk.CTk):
+class QuestionnaireWindow(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Class Feedback")
-        self.geometry("600x400")
+        self.geometry("1355x345")
         self.protocol("WM_DELETE_WINDOW", self.on_close)  # Disable close button
 
         # Sections
@@ -54,9 +55,17 @@ class QuestionnaireWindow(ctk.CTk):
     def create_questionnaire(self):
         row = 1
         # Header for ratings
-        ratings = ["1 - Completely agree", "2 - ", "3", "4", "5", "6", "7 - Completely disagree"]
+        ratings = [
+            "1 - Completely Agree",
+            "2 - Mostly Agree",
+            "3 - Somewhat Agree",
+            "4 - Neither Agree nor Disagree",
+            "5 - Somewhat Disagree",
+            "6 - Mostly Disagree",
+            "7 - Completely Disagree"
+        ]
         for i, rating in enumerate(ratings, start=1):
-            label = ctk.CTkLabel(self, text=rating, text_color="#FFFFFF")
+            label = tk.Label(self, text=rating)
             label.grid(row=0, column=i, padx=5, pady=5)
 
         questions = {
@@ -81,16 +90,16 @@ class QuestionnaireWindow(ctk.CTk):
                 self.add_question(question, self.responses[category], row)
                 row += 1
 
-        submit_btn = ctk.CTkButton(self, text="Submit", command=self.submit)
+        submit_btn = tk.Button(self, text="Submit", command=self.submit)
         submit_btn.grid(row=row, columnspan=8, pady=20)
 
     def add_question(self, question, response_list, row):
-        label = ctk.CTkLabel(self, text=question, text_color="#FFFFFF")
+        label = tk.Label(self, text=question)
         label.grid(row=row, column=0, sticky="w", padx=5, pady=5)
         var = tk.IntVar(value=0)  # Default value set to 0
         response_list.append(var)
         for value in range(1, 8):
-            rb = ctk.CTkRadioButton(self, text=str(value), variable=var, value=value)
+            rb = tk.Radiobutton(self, text=str(value), variable=var, value=value)
             rb.grid(row=row, column=value, padx=5)  # Arrange buttons in columns
 
     def submit(self):
@@ -98,13 +107,13 @@ class QuestionnaireWindow(ctk.CTk):
             avg_scores = {category: np.mean([score.get() for score in scores])
                           for category, scores in self.responses.items()}
             send_info(response_localId, report_ref, avg_scores)
+            #print(avg_scores)
             self.destroy()
         else:
-            ctk.CTkMessageBox.showwarning("Incomplete", "Please answer all questions.")
+            showwarning(title="Incomplete", message="Please answer all questions.")
 
     def on_close(self):
         pass  # Disable close functionality
-
 
 
 class LoginWindow(tk.Tk):
